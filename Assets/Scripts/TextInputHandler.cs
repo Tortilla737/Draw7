@@ -14,7 +14,7 @@ public class TextInputHandler : MonoBehaviour {
     {
         if (writeEnabled)
         {
-            keyboard = TouchScreenKeyboard.Open(GetComponent<Text>().text, TouchScreenKeyboardType.Default, false, true, false);
+            keyboard = TouchScreenKeyboard.Open(GetComponent<Text>().text, TouchScreenKeyboardType.Search, false, true, false);
         }
 
         if (keyboard != null)
@@ -23,6 +23,9 @@ public class TextInputHandler : MonoBehaviour {
             writeEnabled = false;
         }
     }
+#if UNITY_EDITOR
+    //Code here for Editor only.
+#endif
 
     public void StartEdit()
     {

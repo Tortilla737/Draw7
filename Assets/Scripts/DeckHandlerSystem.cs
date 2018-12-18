@@ -9,12 +9,24 @@ public class DeckHandlerSystem : MonoBehaviour {
 
     public Text textField;
     public Text nameField;
+    private string fixedDataPath;
     private string[] deckList;
+    ExternalStorageHandler storageHandler;
 
 
 	void Start () {
-		
+        storageHandler = GetComponent<ExternalStorageHandler>();
+        SetDataPath();
 	}
+    
+    private void SetDataPath()
+    {
+        fixedDataPath = storageHandler.GetAndroidExternalFilesDirLaunch();
+
+#if UNITY_EDITOR
+        fixedDataPath = Application.dataPath;
+#endif
+    }
 
     public void TextToList()
     {
@@ -29,7 +41,7 @@ public class DeckHandlerSystem : MonoBehaviour {
 
     public void SaveStringToText(string stringInput, string deckName)
     {
-        string path = Application.dataPath + "/DecklistData/" + deckName + ".txt";
+        string path = fixedDataPath + "/DecklistData/" + deckName + ".txt";
 
         StreamWriter writer = new StreamWriter(path);
         if (File.Exists(path))
