@@ -9,8 +9,8 @@ public class DeckHandlerSystem : MonoBehaviour {
 
     public Text textField;
     public Text nameField;
+    private string deckBuffer;
     private string fixedDataPath;
-    private string[] deckList;
     ExternalStorageHandler storageHandler;
 
 
@@ -21,60 +21,78 @@ public class DeckHandlerSystem : MonoBehaviour {
     
     private void SetDataPath()
     {
-        fixedDataPath = storageHandler.GetAndroidExternalFilesDirLaunch();
 
 #if UNITY_EDITOR
         fixedDataPath = Application.dataPath;
+#elif UNITY_ANDROID
+        fixedDataPath = storageHandler.GetAndroidExternalFilesDirLaunch();
 #endif
     }
 
-    public void TextToList()
+    public string[] TextToList(string textLine)
     {
         char[] delimiters = new char[] { '\r', '\n' };
-        deckList = textField.text.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
-        foreach (string i in deckList)
-        {
-            Debug.Log(i);
-
-        }
+        return textLine.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
     }
+
+    public void SaveButtonPressed()
+    {
+        string shortName = nameField.text.Replace(" ", "_");
+        string content = textField.text;
+        SaveStringToText(content, shortName);
+    }
+    
 
     public void SaveStringToText(string stringInput, string deckName)
     {
         string path = fixedDataPath + "/DecklistData/" + deckName + ".txt";
 
-        StreamWriter writer = new StreamWriter(path);
+        Debug.Log(Application.persistentDataPath);
+        Debug.Log(Application.dataPath);
+        Debug.Log(path);
+
         if (File.Exists(path))
         {
+            StreamWriter writer = new StreamWriter(path);
+
+            //überschreiben Abfrage
             writer.AutoFlush = true;
             writer.WriteLine(stringInput);
-            
+
+            writer.Close();
         }
         else
         {
+            Debug.Log("trying to create " +path);
             File.Create(path);
             SaveStringToText(stringInput, deckName);
         }
-        writer.Close();
     }
 
-    public void LoadDecklist(string filePath)
+    public void LoadDecklist(string deckName)
     {
-        if (File.Exists(filePath))
+        deckName = nameField.text;
+        string path = fixedDataPath + "/DecklistData/" + deckName.Replace(" ", "_") + ".txt";
+
+        if (File.Exists(path))
         {
-            StreamReader reader = new StreamReader(filePath);
-
-            for (int i = 0; i<= deckList.Length; i++)
+            StreamReader reader = new StreamReader(path);
+            
+            //deckBuffer bekommt den String aus der Datei
+            deckBuffer = reader.ReadToEnd();
+            Debug.Log("kompletter text:\n" + deckBuffer);
+            string[] listBuffer = TextToList(deckBuffer);
+            foreach (string i in listBuffer)
             {
-
+                Debug.Log("Zeile: " + i);
+                textField.text = string.Concat(textField.text, i);
             }
-            string job = reader.ReadLine();
-
             reader.Close();
         }
         else
         {
-            Debug.Log(filePath + " nicht gefunden");
+            Debug.Log(path + "\nnicht gefunden");
         }
     }
+    
 }

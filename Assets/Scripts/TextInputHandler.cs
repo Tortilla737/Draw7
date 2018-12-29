@@ -15,6 +15,7 @@ public class TextInputHandler : MonoBehaviour {
         if (writeEnabled)
         {
             keyboard = TouchScreenKeyboard.Open(GetComponent<Text>().text, TouchScreenKeyboardType.Search, false, true, false);
+            TouchScreenKeyboard.hideInput = true;
         }
 
         if (keyboard != null)
