@@ -12,11 +12,7 @@ public class DrawHand : MonoBehaviour
     public Text textField;
     public GameObject[] cardPanels;
     public GameObject nextCardPanel;
-
-    private void Start()
-    {
-
-    }
+    
 
     public void DrawHandButton()
     {
@@ -46,6 +42,7 @@ public class DrawHand : MonoBehaviour
         int randomInt = UnityEngine.Random.Range(0, deckList.Count);
         // karte muss eingetragen werden
         cardPanel.GetComponentInChildren<Text>().text = deckList[randomInt];
+        cardPanel.GetComponentInChildren<Image>();
     }
 
     private void GetDecklist()

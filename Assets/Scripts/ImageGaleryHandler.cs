@@ -34,7 +34,7 @@ public class ImageGaleryHandler : MonoBehaviour {
             //Get specific data
             string[] cardData;
             cardData = datawww.downloadHandler.text.Split(","[0]);
-            Debug.Log(cardData[0]);
+            Debug.Log(cardData[0]); //Card name
         }
     }
 
@@ -70,14 +70,14 @@ public class ImageGaleryHandler : MonoBehaviour {
         //Check if we failed to send
         if (string.IsNullOrEmpty(www.error))
         {
-            UnityEngine.Debug.Log("Success");
+            Debug.Log("Success");
 
             //Save Image
-            saveImage(savePath, www.bytes);
+            SaveImage(savePath, www.bytes);
         }
         else
         {
-            UnityEngine.Debug.Log("Error: " + www.error);
+            Debug.Log("Error: " + www.error);
         }
     }
 
@@ -131,4 +131,7 @@ public class ImageGaleryHandler : MonoBehaviour {
 
         return dataByte;
     }
+
+
+
 }
