@@ -9,8 +9,8 @@ public class DeckHandlerSystem : MonoBehaviour {
 
     public Text textField;
     public Text nameField;
-    private string deckBuffer;
     private string fixedDataPath;
+    private List<string> deckList = new List<string>();
     ExternalStorageHandler storageHandler;
 
 
@@ -21,77 +21,98 @@ public class DeckHandlerSystem : MonoBehaviour {
     
     private void SetDataPath()
     {
-
+        //check existance first...
 #if UNITY_EDITOR
         fixedDataPath = Application.dataPath;
+
 #elif UNITY_ANDROID
         fixedDataPath = storageHandler.GetAndroidExternalFilesDirLaunch();
+
 #endif
+
+        fixedDataPath = fixedDataPath + "/DecklistData/";
+        if (!Directory.Exists(fixedDataPath))
+        {
+            Directory.CreateDirectory(fixedDataPath);
+        }
     }
 
-    public string[] TextToList(string textLine)
+    public void SaveDecklistButton()
     {
+        TextToList();
+        SaveStringToText(deckList.ToArray(), nameField.text);
+    }
+    public void LoadDecklistButton()
+    {
+        string path = fixedDataPath + nameField.text + ".txt";
+        LoadDecklist(path);
+    }
+
+    private void TextToList() //saves textField content in a List<string> deckList
+    {
+        deckList.Clear();
+
         char[] delimiters = new char[] { '\r', '\n' };
-        return textLine.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
+        string[] deckListBuffer = textField.text.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
+        foreach (string i in deckListBuffer)
+        {
+            //Debug.Log(i);
+            deckList.Add(i);
+        }
     }
 
-    public void SaveButtonPressed()
+    private void SaveStringToText(string[] stringInput, string deckName)
     {
-        string shortName = nameField.text.Replace(" ", "_");
-        string content = textField.text;
-        SaveStringToText(content, shortName);
-    }
-    
-
-    public void SaveStringToText(string stringInput, string deckName)
-    {
-        string path = fixedDataPath + "/DecklistData/" + deckName + ".txt";
-
-        Debug.Log(Application.persistentDataPath);
-        Debug.Log(Application.dataPath);
-        Debug.Log(path);
-
+        string path = fixedDataPath + deckName + ".txt";
+        
+        
         if (File.Exists(path))
         {
+            Debug.Log("file exists");
+            //überschreiben? message
             StreamWriter writer = new StreamWriter(path);
-
-            //überschreiben Abfrage
             writer.AutoFlush = true;
-            writer.WriteLine(stringInput);
-
+            foreach(string i in stringInput)
+            {
+                writer.WriteLine(i);
+            }
             writer.Close();
         }
         else
         {
-            Debug.Log("trying to create " +path);
-            File.Create(path);
+            //'does not exist' message
+            var fileBuffer = File.Create(path);
+            fileBuffer.Close();
             SaveStringToText(stringInput, deckName);
         }
     }
 
-    public void LoadDecklist(string deckName)
+    private void LoadDecklist(string filePath)
     {
-        deckName = nameField.text;
-        string path = fixedDataPath + "/DecklistData/" + deckName.Replace(" ", "_") + ".txt";
-
-        if (File.Exists(path))
+        deckList.Clear();
+        if (File.Exists(filePath))
         {
-            StreamReader reader = new StreamReader(path);
-            
-            //deckBuffer bekommt den String aus der Datei
-            deckBuffer = reader.ReadToEnd();
-            Debug.Log("kompletter text:\n" + deckBuffer);
-            string[] listBuffer = TextToList(deckBuffer);
-            foreach (string i in listBuffer)
+            StreamReader reader = new StreamReader(filePath);
+            string textBuffer;
+
+            textBuffer = reader.ReadLine();
+            while (textBuffer != null)
             {
-                Debug.Log("Zeile: " + i);
-                textField.text = string.Concat(textField.text, i);
+                deckList.Add(textBuffer);
+                textBuffer = reader.ReadLine();
             }
+
             reader.Close();
+
+            textField.text = "";
+            foreach (string i in deckList)
+            {
+                textField.text = textField.text + i + '\n';
+            }
         }
         else
         {
-            Debug.Log(path + "\nnicht gefunden");
+            Debug.Log(filePath + " nicht gefunden");
         }
     }
     
