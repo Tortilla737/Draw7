@@ -29,6 +29,5 @@ public class SceneHandler : MonoBehaviour {
         {
             i.SetActive(true);
         }
-        GetComponent<LayoutHandler>().animateMenu();
     }
 }

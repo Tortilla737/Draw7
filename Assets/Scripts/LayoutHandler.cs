@@ -15,7 +15,7 @@ public class LayoutHandler : MonoBehaviour {
         menuIsOpen = false;
     }
 
-    public void animateMenu(){
+    public void AnimateMenu(){
         menuIsOpen = !menuIsOpen;
         menuAnimator.SetBool("openMenu", menuIsOpen);
     }

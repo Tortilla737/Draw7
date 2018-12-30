@@ -39,8 +39,15 @@ public class DeckHandlerSystem : MonoBehaviour {
 
     public void SaveDecklistButton()
     {
-        TextToList();
-        SaveStringToText(deckList.ToArray(), nameField.text);
+        if (nameField.text == "")
+        {
+            //No Name Warning
+        }
+        else
+        {
+            TextToList();
+            SaveStringToText(deckList.ToArray(), nameField.text);
+        }
     }
     public void LoadDecklistButton()
     {
