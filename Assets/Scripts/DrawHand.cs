@@ -8,10 +8,11 @@ public class DrawHand : MonoBehaviour
 {
 
     private List<string> deckList = new List<string>();
-    public bool pictureMode;
+    public bool pictureMode = true;
     public Text textField;
     public GameObject[] cardPanels;
     public GameObject nextCardPanel;
+    public GameObject pictureModeIcon;
     
 
     public void DrawHandButton()
@@ -82,5 +83,12 @@ public class DrawHand : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void TogglePictureMode()
+    {
+        pictureMode = !pictureMode;
+
+        pictureModeIcon.SetActive(pictureMode);
     }
 }

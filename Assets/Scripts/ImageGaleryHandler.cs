@@ -37,23 +37,7 @@ public class ImageGaleryHandler : MonoBehaviour {
             Debug.Log(cardData[0]); //Card name
         }
     }
-
-    IEnumerator GetCardImage()
-    {
-
-        UnityWebRequest www = UnityWebRequestTexture.GetTexture("");
-        yield return www.SendWebRequest();
-
-        if (www.isNetworkError || www.isHttpError)
-        {
-            Debug.Log(www.error);
-        }
-        else
-        {
-            Texture myTexture = ((DownloadHandlerTexture)www.downloadHandler).texture;
-            //bufferImage.sprite = myTexture;
-        }
-    }
+    
 
     //----------online lösung-------------
 

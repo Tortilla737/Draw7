@@ -8,7 +8,8 @@ using UnityEngine.UI;
 public class DeckHandlerSystem : MonoBehaviour {
 
     public Text textField;
-    public Text nameField;
+    public Text saveNameField;
+    public Text loadNameField;
     private string fixedDataPath;
     private List<string> deckList = new List<string>();
     ExternalStorageHandler storageHandler;
@@ -30,7 +31,7 @@ public class DeckHandlerSystem : MonoBehaviour {
 
 #endif
 
-        fixedDataPath = fixedDataPath + "/DecklistData/";
+        fixedDataPath = fixedDataPath + "/DrawSevenData/";
         if (!Directory.Exists(fixedDataPath))
         {
             Directory.CreateDirectory(fixedDataPath);
@@ -39,19 +40,20 @@ public class DeckHandlerSystem : MonoBehaviour {
 
     public void SaveDecklistButton()
     {
-        if (nameField.text == "")
+        if (saveNameField.text == "")
         {
             //No Name Warning
         }
         else
         {
             TextToList();
-            SaveStringToText(deckList.ToArray(), nameField.text);
+            SaveStringToText(deckList.ToArray(), saveNameField.text);
         }
     }
+
     public void LoadDecklistButton()
     {
-        string path = fixedDataPath + nameField.text + ".txt";
+        string path = fixedDataPath + loadNameField.text.Replace(" ", "_") + ".txt";
         LoadDecklist(path);
     }
 
@@ -70,7 +72,7 @@ public class DeckHandlerSystem : MonoBehaviour {
 
     private void SaveStringToText(string[] stringInput, string deckName)
     {
-        string path = fixedDataPath + deckName + ".txt";
+        string path = fixedDataPath + deckName.Replace(" ", "_") + ".txt";
         
         
         if (File.Exists(path))
@@ -122,5 +124,9 @@ public class DeckHandlerSystem : MonoBehaviour {
             Debug.Log(filePath + " nicht gefunden");
         }
     }
-    
+    public string GetFixedPath()
+    {
+        return fixedDataPath;
+    }
+
 }
