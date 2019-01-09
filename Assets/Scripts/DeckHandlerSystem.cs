@@ -65,7 +65,7 @@ public class DeckHandlerSystem : MonoBehaviour {
         string[] deckListBuffer = textField.text.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
         foreach (string i in deckListBuffer)
         {
-            //Debug.Log(i);
+            // Syntax korrigieren (5 plains -> 5x Plains)
             deckList.Add(i);
         }
     }

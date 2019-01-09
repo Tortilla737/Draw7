@@ -34,7 +34,23 @@ public class ImageGaleryHandler : MonoBehaviour {
             //Get specific data
             string[] cardData;
             cardData = datawww.downloadHandler.text.Split(","[0]);
-            Debug.Log(cardData[0]); //Card name
+            //i = 5: Name
+            //i = 15: png-url
+            string fixedUrl = cardData[15].TrimEnd('"');
+            fixedUrl = fixedUrl.Substring(fixedUrl.LastIndexOf(":") + 1);
+            string fixedPath = GameObject.Find("Handler").GetComponent<DeckHandlerSystem>().GetFixedPath();
+            fixedPath = fixedPath + "ImageData/";
+            fixedPath = fixedPath.Replace(" ", "_");
+
+            DownloadImage(fixedUrl, fixedPath);
+
+
+            /*
+            for (int i = 0; i< cardData.Length; i++)
+            {
+                Debug.Log(i + " - " + cardData[i]);  //achtung! Kommata im Oracletext können zu Fehlern führen
+            }
+            */
         }
     }
     
