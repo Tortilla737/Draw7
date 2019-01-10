@@ -3759,7 +3759,7 @@ GameObject:
   - component: {fileID: 706242839}
   - component: {fileID: 706242838}
   m_Layer: 5
-  m_Name: Label
+  m_Name: ToDownloadLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10214,8 +10214,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79d1e0b0d7120024299ffbd9347c221c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bufferImage: {fileID: 0}
-  inputName: Liliana Vess
+  deckNameTextField: {fileID: 706242838}
 --- !u!114 &2145073125
 MonoBehaviour:
   m_ObjectHideFlags: 0

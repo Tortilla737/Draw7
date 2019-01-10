@@ -10,13 +10,27 @@ public class ImageGaleryHandler : MonoBehaviour {
 
     // https://img.scryfall.com/cards/png/en/ktk/170.png
 
-    public Image bufferImage;
-    public string inputName;
+
+    public Text deckNameTextField;
+    private DeckHandlerSystem _deckHandler;
+    private string fixedPath;
+
+    private void Start()
+    {
+        _deckHandler = GetComponent<DeckHandlerSystem>();
+        fixedPath = _deckHandler.GetFixedPath();
+    }
 
     public void GetOnlineImage()
     {
-        
-        StartCoroutine(GetCardData(inputName));
+        string deckPath = fixedPath + deckNameTextField.text.Replace(" ", "_") + ".txt";
+        List<string> deckList = _deckHandler.LoadDecklist(deckPath);
+
+        char[] trimsStart = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'x', ' ' };
+        foreach (string name in deckList)
+        {
+            StartCoroutine(GetCardData(name.TrimStart(trimsStart)));
+        }
         
     }
 
@@ -27,22 +41,42 @@ public class ImageGaleryHandler : MonoBehaviour {
         yield return datawww.SendWebRequest();
         if (datawww.isNetworkError || datawww.isHttpError)
         {
-            Debug.Log(datawww.error);
+            Debug.Log(datawww.error + cardName);
         }
         else
         {
             //Get specific data
             string[] cardData;
             cardData = datawww.downloadHandler.text.Split(","[0]);
-            //i = 5: Name
-            //i = 15: png-url
-            string fixedUrl = cardData[15].TrimEnd('"');
-            fixedUrl = fixedUrl.Substring(fixedUrl.LastIndexOf(":") + 1);
-            string fixedPath = GameObject.Find("Handler").GetComponent<DeckHandlerSystem>().GetFixedPath();
-            fixedPath = fixedPath + "ImageData/";
-            fixedPath = fixedPath.Replace(" ", "_");
+            string fixedUrl = "";
+            string fixedName = "";
 
-            DownloadImage(fixedUrl, fixedPath);
+            for (int i = 0; i< cardData.Length; i++)
+            {
+                if (cardData[i].StartsWith("\"name"))
+                {
+                    fixedName = cardData[i].TrimEnd('"');
+                    break;
+                }
+                if (cardData[i].StartsWith("\"png"))
+                {
+                    fixedUrl = cardData[i].TrimEnd('"');
+                    break;
+                }
+            }
+            fixedUrl = fixedUrl.Substring(fixedUrl.LastIndexOf(":") + 1);
+            fixedName = fixedName.Substring(fixedName.LastIndexOf(":") + 2);
+            string imagePath = fixedPath;
+            imagePath = imagePath + "ImageData/"+ deckNameTextField.text.Replace(" ", "_") + "/" + fixedName.Replace(" ", "_");
+
+            if (!File.Exists(imagePath))
+            {
+                DownloadImage(fixedUrl, imagePath);
+            }
+            else
+            {
+                Debug.Log(fixedName + " bereits in der Bibliothek");
+            }
 
 
             /*

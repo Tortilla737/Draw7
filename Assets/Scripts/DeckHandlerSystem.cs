@@ -53,8 +53,16 @@ public class DeckHandlerSystem : MonoBehaviour {
 
     public void LoadDecklistButton()
     {
+        deckList.Clear();
+
         string path = fixedDataPath + loadNameField.text.Replace(" ", "_") + ".txt";
-        LoadDecklist(path);
+        
+        deckList = LoadDecklist(path);
+        textField.text = "";
+        foreach (string i in deckList)
+        {
+            textField.text = textField.text + i + '\n';
+        }
     }
 
     private void TextToList() //saves textField content in a List<string> deckList
@@ -96,9 +104,10 @@ public class DeckHandlerSystem : MonoBehaviour {
         }
     }
 
-    private void LoadDecklist(string filePath)
+    public List<string> LoadDecklist(string filePath)
     {
-        deckList.Clear();
+        List<string> deckListBuffer = new List<string>();
+
         if (File.Exists(filePath))
         {
             StreamReader reader = new StreamReader(filePath);
@@ -107,22 +116,17 @@ public class DeckHandlerSystem : MonoBehaviour {
             textBuffer = reader.ReadLine();
             while (textBuffer != null)
             {
-                deckList.Add(textBuffer);
+                deckListBuffer.Add(textBuffer);
                 textBuffer = reader.ReadLine();
             }
-
             reader.Close();
-
-            textField.text = "";
-            foreach (string i in deckList)
-            {
-                textField.text = textField.text + i + '\n';
-            }
         }
         else
         {
             Debug.Log(filePath + " nicht gefunden");
         }
+
+        return deckListBuffer;
     }
     public string GetFixedPath()
     {
