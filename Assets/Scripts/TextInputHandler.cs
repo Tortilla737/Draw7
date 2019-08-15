@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,19 +9,25 @@ public class TextInputHandler : MonoBehaviour {
     
     private TouchScreenKeyboard keyboard;
     private bool writeEnabled = false;
+    private TextMeshProUGUI textField;
+
+    private void Start()
+    {
+        textField = GetComponent<TextMeshProUGUI>();
+    }
 
     // Updates button's text while user is typing
     void OnGUI()
     {
         if (writeEnabled)
         {
-            keyboard = TouchScreenKeyboard.Open(GetComponent<Text>().text, TouchScreenKeyboardType.Search, false, true, false);
+            keyboard = TouchScreenKeyboard.Open("", TouchScreenKeyboardType.Search, false, true, false);
             TouchScreenKeyboard.hideInput = true;
         }
 
         if (keyboard != null)
         {
-            GetComponent<Text>().text = keyboard.text;
+            textField.text = keyboard.text;
             writeEnabled = false;
         }
     }

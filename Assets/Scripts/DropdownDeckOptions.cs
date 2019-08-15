@@ -7,12 +7,14 @@ public class DropdownDeckOptions : MonoBehaviour {
     
     private List<string> m_DropOptions = new List<string> { "Option 1", "Option 2" };
     private Dropdown m_Dropdown;
+    private int lastOption;
 
     
 
     public void RefreshDropdown()
     {
         m_Dropdown = GetComponent<Dropdown>();
+        lastOption = m_Dropdown.value;
         m_Dropdown.ClearOptions();
         m_DropOptions.Clear();
 
@@ -31,5 +33,9 @@ public class DropdownDeckOptions : MonoBehaviour {
         }
 
         m_Dropdown.AddOptions(m_DropOptions);
+        if (lastOption <= m_Dropdown.options.Count)
+        {
+            m_Dropdown.SetValueWithoutNotify(lastOption);
+        }
     }
 }

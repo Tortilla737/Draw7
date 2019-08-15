@@ -2,12 +2,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class DeckHandlerSystem : MonoBehaviour {
 
-    public Text textField;
+    public TextMeshProUGUI textField;
     public Text saveNameField;
     public Text loadNameField;
     private string fixedDataPath;
@@ -42,7 +43,7 @@ public class DeckHandlerSystem : MonoBehaviour {
     {
         if (saveNameField.text == "")
         {
-            //No Name Warning
+            Debug.Log("The Deck has no name");  //auch an den User ausgeben per popup!
         }
         else
         {

@@ -16,7 +16,7 @@ public class ExternalStorageHandler : MonoBehaviour {
             using (AndroidJavaObject context = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"))
             {
                 // Get all available external file directories (emulated and sdCards)
-                AndroidJavaObject[] externalFilesDirectories = context.Call<AndroidJavaObject[]>("getExternalFilesDirs", null);
+                AndroidJavaObject[] externalFilesDirectories = context.Call<AndroidJavaObject[]>("getExternalFilesDirs");
                 AndroidJavaObject emulated = null;
                 AndroidJavaObject sdCard = null;
 
@@ -42,5 +42,4 @@ public class ExternalStorageHandler : MonoBehaviour {
             }
         }
     }
-
 }
