@@ -10,17 +10,19 @@ public class DrawHand : MonoBehaviour
 {
 
     private List<string> deckList;
-    public bool pictureMode = true;
-    public TextMeshProUGUI textField;
-    public List<GameObject> cardPanels;
-    public GameObject nextCardPanel;
-    public GameObject pictureModeIcon;
     private CardMover mover;
+    private List<bool> alreadyDrawn;
+    public List<GameObject> cardPanels;
+    public TextMeshProUGUI textField;
+    public GameObject cardOverPanel;
+    public int cardsDrawn;
 
     private void Start()
     {
         mover = GetComponent<CardMover>();
         deckList = new List<string>();
+        alreadyDrawn = new List<bool>();
+        cardsDrawn = 0;
     }
 
     public void DrawHandButton()
@@ -32,30 +34,70 @@ public class DrawHand : MonoBehaviour
 
     public void RedrawButton()
     {
+        cardsDrawn = 0;
         foreach (GameObject panel in cardPanels)
         {
-            RandomCardInPanel(panel);
+            panel.transform.position = mover.startPoint.transform.position;
         }
-        //Animation
+        for (int i = 0; i < alreadyDrawn.Count; i++)
+        {
+            alreadyDrawn[i] = false;
+        }
+        while(cardsDrawn < 7)
+        {
+            DrawAdditionalCard();
+        }
     }
 
-    private void RandomCardInPanel(GameObject cardPanel)
+    public void DrawAdditionalCard()
     {
-        int[] deckIndex = new int[deckList.Count];
-        for(int i = 0; i< deckList.Count; i++) //für jede Karte gibt es einen prüf-Index, um Duplikate zu vermeiden
+        if (cardsDrawn < deckList.Count)
         {
-            deckIndex[i] = i;
+            cardsDrawn++;
+
+            if (cardsDrawn >= cardPanels.Count)
+            {
+                cardPanels.Add(CreateEmptyCard());
+            }
+            cardPanels[cardsDrawn - 1].GetComponent<CardButton>().nthCard = cardsDrawn;
+            RandomCardToPanel(cardPanels[cardsDrawn-1]);
+
+            for (int i = 0; i < cardsDrawn; i++)    //jedes Mal wenn eine Karte gezogen wird, werden alle Karten neu positioniert
+            {
+                mover.AnimateToPosition(cardPanels[i]);
+            }
         }
+    }
+
+    private GameObject CreateEmptyCard()
+    {
+        GameObject panelBuffer = Instantiate(mover.cardPref, cardOverPanel.transform.GetChild(0));
+        panelBuffer.transform.position = mover.startPoint.transform.position;
+        return panelBuffer;
+    }
+
+    private void RandomCardToPanel(GameObject cardPanel)
+    {
         int randomInt = UnityEngine.Random.Range(0, deckList.Count);
-        // karte muss eingetragen werden
-        // hier noch random next logik eintragen
-        cardPanel.GetComponentInChildren<Text>().text = deckList[randomInt];
-        cardPanel.transform.GetChild(0).GetComponent<Image>().sprite = ByteToSprite(GetImageData(deckList[randomInt]));
+
+        if (alreadyDrawn[randomInt] == false)
+        {
+            cardPanel.GetComponentInChildren<Text>().text = deckList[randomInt];
+            if (mover.pictureMode)
+            {
+                cardPanel.transform.GetChild(0).GetComponent<Image>().sprite = ByteToSprite(GetImageData(deckList[randomInt]));
+            }
+            alreadyDrawn[randomInt] = true;
+        }
+        else
+        {
+            RandomCardToPanel(cardPanel);
+        }
     }
     private byte[] GetImageData(String cardName)
     {
         String fixedName = cardName;
-        fixedName = fixedName.Replace("/", "+");
+        fixedName = fixedName.Replace("/", "");
         fixedName = fixedName.Replace(" ", "_");
         fixedName = fixedName.Replace(",", "");
         String fixedDeckName = GetComponent<DeckHandlerSystem>().loadNameField.text;
@@ -88,22 +130,24 @@ public class DrawHand : MonoBehaviour
     private void GetDecklist()
     {
         deckList.Clear();
+        alreadyDrawn.Clear();
 
         char[] delimiters = new char[] { '\r', '\n' };
         string[] deckListBuffer = textField.text.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
 
-        char[] trimsStart = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'x', ' ' };
+        char[] trimsStart = new char[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'x', ' ', '\r', '\n'};
         foreach (string card in deckListBuffer)
         {
-            int cardCount;
-            int.TryParse(Regex.Replace(card, "[^0-9]", ""), out cardCount);
-            string cardName = card.TrimStart(trimsStart);
+            string cardName = card;
             cardName.TrimEnd(' ');
-
             if (cardName.EndsWith(")")) // Set Kürzel entfernen
             {
                 cardName = cardName.Substring(0, cardName.Length - 6);
             }
+            int cardCount;
+            int.TryParse(Regex.Replace(cardName, "[^0-9]", ""), out cardCount);
+            cardName = cardName.TrimStart(trimsStart);
+
 
             if (cardCount == 0) // falls keine nummer vor der Karte steht wird sie einmal hinzugefügt
             {
@@ -112,23 +156,24 @@ public class DrawHand : MonoBehaviour
 
             for (int n = 0; n < cardCount; n++)
             {
-                if (cardName.EndsWith("*"))
+                if (cardName.EndsWith("*CMDR*"))
                 {
                     //der Commander wird nicht ins Deck gemischt
-                    //Instantiate Commander 
+                    cardName = cardName.Substring(0, cardName.Length - 7);
+                    GameObject panelBuffer = Instantiate(mover.cardPref, cardOverPanel.transform.GetChild(0));
+                    panelBuffer.transform.position = mover.startPoint.transform.GetChild(0).position;
+                    panelBuffer.transform.GetChild(0).GetComponent<Image>().sprite = ByteToSprite(GetImageData(cardName));
+                    panelBuffer.GetComponent<CardButton>().nthCard = 0;
                 }
                 else
                 {
-                    deckList.Add(cardName);
+                    if (cardName.Length > 1)
+                    {
+                        deckList.Add(cardName);
+                        alreadyDrawn.Add(false);
+                    }
                 }
             }
         }
-    }
-
-    public void TogglePictureMode()
-    {
-        pictureMode = !pictureMode;
-
-        pictureModeIcon.SetActive(pictureMode);
     }
 }

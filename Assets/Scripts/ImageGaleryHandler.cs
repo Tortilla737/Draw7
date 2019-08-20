@@ -13,12 +13,14 @@ public class ImageGaleryHandler : MonoBehaviour {
 
 
     public Text deckNameTextField;
+    public Text toDeleteTextField;
     public GameObject progressBarObj;
     private Image progressBar;
     private TextMeshProUGUI progressText;
     private int downloadProgress;
     private string fixedPath;
     private List<string> deckList;
+    private int failed;
 
     private void Start()
     {
@@ -33,11 +35,39 @@ public class ImageGaleryHandler : MonoBehaviour {
         string deckPath = fixedPath + deckNameTextField.text.Replace(" ", "_") + ".txt";
         deckList = GetComponent<DeckHandlerSystem>().LoadDecklist(deckPath);
         downloadProgress = 0;
+        failed = 0;
 
+        StartCoroutine(GetAllImages());
+    }
+    private IEnumerator GetAllImages()
+    {
         char[] trimsStart = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'x', ' ' };
-        foreach (string name in deckList)
+        for (int i = 0; i < deckList.Count; i++)
         {
-            StartCoroutine(GetCardData(name.TrimStart(trimsStart)));
+            String cardName;
+            cardName = deckList[i].TrimStart(trimsStart);
+            if (cardName.EndsWith(")")) // Set Kürzel entfernen
+            {
+                cardName = cardName.Substring(0, cardName.Length - 6);
+            }
+            StartCoroutine(GetCardData(cardName));
+            while (i >= downloadProgress + failed)
+            {
+                yield return null;
+            }
+        }
+    }
+
+    public void DeleteDeckFolder()
+    {
+        string deletePath = fixedPath + "ImageData/" + toDeleteTextField.text.Replace(" ", "_") + "/";
+        if (Directory.Exists(deletePath))
+        {
+            Directory.Delete(deletePath, true);
+        }
+        else
+        {
+            Debug.Log("File not found " + deletePath);
         }
     }
 
@@ -49,6 +79,8 @@ public class ImageGaleryHandler : MonoBehaviour {
         if (datawww.isNetworkError || datawww.isHttpError)
         {
             Debug.Log(datawww.error + cardName);
+            failed++;
+            progressText.text = "failed " + failed;
         }
         else
         {
@@ -72,7 +104,7 @@ public class ImageGaleryHandler : MonoBehaviour {
                     }
                     fixedName = fixedName.TrimEnd('"');
                     fixedName = fixedName.Substring(fixedName.LastIndexOf(":") + 2);
-                    fixedName = fixedName.Replace("/", "+");
+                    fixedName = fixedName.Replace("/", "");
                     fixedName = fixedName.Replace(" ", "_");
                 }
                 if (cardData[i].StartsWith("\"png"))
@@ -97,6 +129,9 @@ public class ImageGaleryHandler : MonoBehaviour {
             }
             else
             {
+                downloadProgress++;
+                progressBar.color = new Color(0.34f, 0.75f, 0.42f); //grün
+                UpdateProgress();
                 Debug.Log(fixedName + " bereits in der Bibliothek");
             }
 
@@ -113,6 +148,10 @@ public class ImageGaleryHandler : MonoBehaviour {
     {
         progressText.text = downloadProgress + "/" + deckList.Count;
         progressBar.fillAmount = (float)downloadProgress/deckList.Count;
+        if (downloadProgress == deckList.Count)
+        {
+            progressText.text = "Done!";
+        }
     }
 
     //----------online lösung-------------
@@ -131,19 +170,21 @@ public class ImageGaleryHandler : MonoBehaviour {
         //Check if we failed to send
         if (string.IsNullOrEmpty(www.error))
         {
-            Debug.Log("Success");
-            //Save Image
             SaveImage(savePath, www.downloadHandler.data);
 
             if (www.isDone)
             {
                 downloadProgress++;
+                progressBar.color = new Color(0, 0.882f, 1); //cyan
                 UpdateProgress();
             }
         }
         else
         {
             Debug.Log("Error: " + www.error);
+            failed++;
+            progressBar.color = new Color(1, 0.3f, 0.184f); //red
+            progressText.text = "failed " + failed;
         }
     }
 
@@ -197,5 +238,4 @@ public class ImageGaleryHandler : MonoBehaviour {
 
         return dataByte;
     }
-    
 }

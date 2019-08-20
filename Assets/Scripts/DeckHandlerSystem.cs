@@ -8,9 +8,11 @@ using UnityEngine.UI;
 
 public class DeckHandlerSystem : MonoBehaviour {
 
-    public TextMeshProUGUI textField;
+    public TMP_InputField textField;
     public Text saveNameField;
     public Text loadNameField;
+    public GameObject mobileInputIcon;
+    private bool hideMobileInput = true;
     private string fixedDataPath;
     private List<string> deckList = new List<string>();
     ExternalStorageHandler storageHandler;
@@ -55,11 +57,14 @@ public class DeckHandlerSystem : MonoBehaviour {
     public void LoadDecklistButton()
     {
         deckList.Clear();
-
-        string path = fixedDataPath + loadNameField.text.Replace(" ", "_") + ".txt";
+        if (textField.text.Length > 0)
+        {
+            textField.text = ""; //what? Fix pls
+        }
         
+        string path = fixedDataPath + loadNameField.text.Replace(" ", "_") + ".txt";
         deckList = LoadDecklist(path);
-        textField.text = "";
+
         foreach (string i in deckList)
         {
             textField.text = textField.text + i + '\n';
@@ -118,6 +123,7 @@ public class DeckHandlerSystem : MonoBehaviour {
             while (textBuffer != null)
             {
                 deckListBuffer.Add(textBuffer);
+                //hier eventuell Syntax korrigieren
                 textBuffer = reader.ReadLine();
             }
             reader.Close();
@@ -133,5 +139,11 @@ public class DeckHandlerSystem : MonoBehaviour {
     {
         return fixedDataPath;
     }
+    public void ToggleMobileInput()
+    {
+        hideMobileInput = !hideMobileInput;
 
+        mobileInputIcon.SetActive(hideMobileInput);
+        textField.shouldHideMobileInput = hideMobileInput;
+    }
 }

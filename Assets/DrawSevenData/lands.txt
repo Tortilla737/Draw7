@@ -1,5 +1,5 @@
-1x plains
-1x swamp
-1x island
-1x forest
-1x mountain
+5x plains
+5x swamp
+5x island
+5x forest
+5x mountain
